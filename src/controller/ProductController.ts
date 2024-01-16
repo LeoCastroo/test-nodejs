@@ -1,16 +1,26 @@
 import { Request, Response } from "express";
+import AppError from "../class/AppError";
 import Controller from "../class/Controller";
+import { IProductData } from "../data/IProductData";
 import asyncHandler from "../middleware/AsyncHadler";
-import { productSchema } from "../validators/productValidators";
 import ProductService from "../service/ProductService";
+import { productSchema } from "../validators/productValidators";
 
 class ProductsController extends Controller {
 
+  private productRepository: IProductData;
+
+  constructor(productRepository: IProductData) {
+    super()
+    this.productRepository = productRepository;
+  }
+
+
   initRoutes() {
-    this.router.post("/products", asyncHandler(this.create));
-    this.router.put("/products/:sku", asyncHandler(this.update));
-    this.router.delete("/products/:sku", asyncHandler(this.delete));
-    this.router.get("/products/:sku", asyncHandler(this.findProductBySku));
+    this.router.post("/products", asyncHandler(this.create.bind(this)));
+    this.router.put("/products/:sku", asyncHandler(this.update.bind(this)));
+    this.router.delete("/products/:sku", asyncHandler(this.delete.bind(this)));
+    this.router.get("/products/:sku", asyncHandler(this.findProductBySku.bind(this)));
   }
 
   async create(req: Request, res: Response) {
@@ -19,8 +29,7 @@ class ProductsController extends Controller {
     if (error) {
       return res.status(400).json(error.details);
     }
-
-    const productCreated = await new ProductService().create(req.body);
+    const productCreated = await new ProductService(this.productRepository).create(req.body);
 
     return res.status(201).send({ message: 'Produto criado com sucesso', product: productCreated });
 
@@ -36,10 +45,10 @@ class ProductsController extends Controller {
     }
 
     if (!Number(sku) && sku !== req.body.sku) {
-      return res.status(400).json('Sku inválido');
+      throw new AppError('Sku inválido', 400);
     }
 
-    const productUpdated = await new ProductService().update(req.body);
+    const productUpdated = await new ProductService(this.productRepository).update(req.body);
 
     return res.status(201).send({ message: 'Produto atualizado com sucesso', product: productUpdated });
 
@@ -49,10 +58,10 @@ class ProductsController extends Controller {
     const { sku } = req.params;
 
     if (!Number(sku)) {
-      return res.status(400).json('Sku inválido');
+      throw new AppError('Sku inválido', 400);
     }
 
-    await new ProductService().delete(Number(sku));
+    await new ProductService(this.productRepository).delete(Number(sku));
 
     return res.status(201).send({ message: 'Produto deletado com sucesso' });
 
@@ -62,10 +71,10 @@ class ProductsController extends Controller {
     const { sku } = req.params;
 
     if (!Number(sku)) {
-      return res.status(400).json('Sku inválido');
+      throw new AppError('Sku inválido', 400);
     }
 
-    const product = await new ProductService().findProductBySku(Number(sku));
+    const product = await new ProductService(this.productRepository).findProductBySku(Number(sku));
 
     return res.status(200).send(product);
   }

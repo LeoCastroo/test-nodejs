@@ -1,4 +1,5 @@
 import AppError from "../class/AppError";
+import InMemoryProductData from "../data/in-memory/InMemoryProductData";
 import { Product } from "../models/Product";
 import ProductService from "../service/ProductService";
 
@@ -7,7 +8,7 @@ describe("Criar produto", () => {
   let productService: ProductService;
 
   beforeAll(() => {
-    productService = new ProductService();
+    productService = new ProductService(new InMemoryProductData());
   })
 
   it("Deve ser possível criar um produto", async () => {

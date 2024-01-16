@@ -1,6 +1,7 @@
-import { Product } from "../models/Product";
+import { Product } from "../../models/Product";
+import { IProductData } from "../IProductData";
 
-class ProductData {
+class InMemoryProductData implements IProductData {
 
   private products: Product[] = [];
 
@@ -28,18 +29,6 @@ class ProductData {
     this.products.splice(productIndex, 1);
   }
 
-  private static instance: ProductData;
-
-  private constructor() {}
-
-  public static getInstance(): ProductData {
-      if (!ProductData.instance) {
-          ProductData.instance = new ProductData();
-      }
-
-      return ProductData.instance;
-  }
-
 }
 
-export default ProductData.getInstance();
+export default InMemoryProductData;

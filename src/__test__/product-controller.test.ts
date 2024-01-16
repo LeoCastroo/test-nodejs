@@ -71,7 +71,7 @@ describe("Edição do produto Controller", () => {
       expect(response.status).toBe(201)
   })
 
-  it("Não deve ser possível criar um produto existente", async () => {
+  it("Não deve seer possível editar um produto inexistente", async () => {
     const response = await request(app)
       .put("/products/5448")
       .send(

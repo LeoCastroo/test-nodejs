@@ -1,16 +1,18 @@
 import AppError from "../class/AppError";
-import ProductData from "../data/ProductData";
+import { IProductData } from "../data/IProductData";
 import { Product } from "../models/Product";
 
 class ProductService {
 
+  constructor(private productData: IProductData) {}
+
   async findAll() {
-    return ProductData.findAll();
+    return this.productData.findAll();
   }
 
   async findProductBySku(sku: number) {
 
-    const product = await ProductData.findProductBySku(sku);
+    const product = await this.productData.findProductBySku(sku);
     if (!product) {
       throw new Error('Produto não encontrado.');
     }
@@ -30,34 +32,34 @@ class ProductService {
 
   async create(obj: Product) {
 
-    const productAlreadyExists = await ProductData.findProductBySku(obj.sku);
+    const productAlreadyExists = await this.productData.findProductBySku(obj.sku);
 
     if (productAlreadyExists) {
       throw new AppError('Produto já está cadastrado', 400);
     }
 
-    await ProductData.create(obj);
+    await this.productData.create(obj);
     return obj;
   }
 
   async update(obj: Product) {
-    const productAlreadyExists = await ProductData.findProductBySku(obj.sku);
+    const productAlreadyExists = await this.productData.findProductBySku(obj.sku);
     if (!productAlreadyExists) {
       throw new AppError('Produto não encontrado.', 400);
     }
 
-    await ProductData.update(obj);
-    return await ProductData.findProductBySku(obj.sku);
+    await this.productData.update(obj);
+    return await this.productData.findProductBySku(obj.sku);
   }
 
   async delete(sku: number) {
-    const productAlreadyExists = await ProductData.findProductBySku(sku);
+    const productAlreadyExists = await this.productData.findProductBySku(sku);
 
     if (!productAlreadyExists) {
       throw new AppError('Produto não encontrado.', 400);
     }
 
-    return await ProductData.delete(sku);
+    return await this.productData.delete(sku);
 
   }
 
